@@ -2,6 +2,7 @@ from utils import detector_utils as detector_utils
 import cv2
 import tensorflow as tf
 import datetime
+from imutils.video import VideoStream
 
 detection_graph, sess = detector_utils.load_inference_graph()
 
@@ -10,20 +11,18 @@ if __name__ == '__main__':
     # Detection confidence threshold to draw bounding box
     score_thresh = 0.60
 
-    # Get stream from webcam and set parameters
-    cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 896)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
+    # Get stream from webcam and set parameters)
+    vs = VideoStream().start()
 
     start_time = datetime.datetime.now()
     num_frames = 0
-    im_width, im_height = (cap.get(3), cap.get(4))
+    im_height, im_width = (vs.read().shape[0], vs.read().shape[1])
     # max number of hands we want to detect/track
     num_hands_detect = 2
 
     while True:
         # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
-        ret, image_np = cap.read()
+        image_np = vs.read()
 
         # Convert image to rgb since opencv loads images in bgr, if not accuracy will decrease
         try:
@@ -50,4 +49,5 @@ if __name__ == '__main__':
         cv2.imshow('Detection', cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR))
         if cv2.waitKey(25) & 0xFF == ord('q'):
             cv2.destroyAllWindows()
+            vs.stop()
             break
