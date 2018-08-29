@@ -2,7 +2,7 @@ from utils import detector_utils as detector_utils
 import cv2
 import tensorflow as tf
 import datetime
-from imutils.video import VideoStream
+from imutils.video import VideoStream, FPS
 
 detection_graph, sess = detector_utils.load_inference_graph()
 
@@ -14,8 +14,11 @@ if __name__ == '__main__':
     # Get stream from webcam and set parameters)
     vs = VideoStream().start()
 
+    # Used to calculate fps
     start_time = datetime.datetime.now()
     num_frames = 0
+    im_fps = FPS().start()
+
     im_height, im_width = (vs.read().shape[0], vs.read().shape[1])
     # max number of hands we want to detect/track
     num_hands_detect = 2
@@ -43,6 +46,7 @@ if __name__ == '__main__':
         elapsed_time = (datetime.datetime.now() -
                         start_time).total_seconds()
         fps = num_frames / elapsed_time
+        im_fps.update()
 
         # Display FPS on frame
         detector_utils.draw_text_on_image("FPS : " + str("{0:.2f}".format(fps)), image_np)
@@ -51,3 +55,5 @@ if __name__ == '__main__':
             cv2.destroyAllWindows()
             vs.stop()
             break
+    im_fps.stop()
+    print("Average FPS: ", im_fps.fps())
