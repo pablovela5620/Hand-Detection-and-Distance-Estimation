@@ -7,8 +7,8 @@ from imutils.video import VideoStream
 from utils import detector_utils as detector_utils
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-v", "--visualize", default=False,
-                help="name of the user")
+ap.add_argument('-d', '--display', dest='display', type=int,
+                        default=1, help='Display the detected images using OpenCV. This reduces FPS')
 args = vars(ap.parse_args())
 
 detection_graph, sess = detector_utils.load_inference_graph()
@@ -38,7 +38,6 @@ if __name__ == '__main__':
             if im_height == None:
                 im_height, im_width = frame.shape[:2]
 
-            print(im_height, im_width)
             # Convert image to rgb since opencv loads images in bgr, if not accuracy will decrease
             try:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -59,7 +58,7 @@ if __name__ == '__main__':
                             start_time).total_seconds()
             fps = num_frames / elapsed_time
 
-            if args['visualize']:
+            if args['display']:
                 # Display FPS on frame
                 detector_utils.draw_text_on_image("FPS : " + str("{0:.2f}".format(fps)), frame)
                 cv2.imshow('Detection', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
