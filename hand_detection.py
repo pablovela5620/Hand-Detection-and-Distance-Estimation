@@ -1,12 +1,17 @@
-from utils import detector_utils as detector_utils
 import cv2
 import datetime
+import argparse
 import imutils
 from imutils.video import VideoStream
 
-detection_graph, sess = detector_utils.load_inference_graph()
+from utils import detector_utils as detector_utils
 
-VIZ_FLAG = False
+ap = argparse.ArgumentParser()
+ap.add_argument("-v", "--visualize", default=False,
+                help="name of the user")
+args = vars(ap.parse_args())
+
+detection_graph, sess = detector_utils.load_inference_graph()
 
 if __name__ == '__main__':
     # Detection confidence threshold to draw bounding box
@@ -28,10 +33,12 @@ if __name__ == '__main__':
         while True:
             # Read Frame and process
             frame = vs.read()
-            frame = cv2.resize(frame, (200, 200))
+            frame = cv2.resize(frame, (320, 240))
 
             if im_height == None:
                 im_height, im_width = frame.shape[:2]
+
+            print(im_height, im_width)
             # Convert image to rgb since opencv loads images in bgr, if not accuracy will decrease
             try:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -52,7 +59,7 @@ if __name__ == '__main__':
                             start_time).total_seconds()
             fps = num_frames / elapsed_time
 
-            if VIZ_FLAG:
+            if args['visualize']:
                 # Display FPS on frame
                 detector_utils.draw_text_on_image("FPS : " + str("{0:.2f}".format(fps)), frame)
                 cv2.imshow('Detection', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
